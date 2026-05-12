@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: nove
+          POSTGRES_PASSWORD: nove
+          POSTGRES_DB: nove_test
+        options: >-
+          --health-cmd pg_isready -U nove -d nove_test
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: TypeScript check (backend)
+        working-directory: backend
+        run: npx tsc --noEmit -p tsconfig.build.json
+
+      - name: Lint (frontend)
+        working-directory: frontend
+        run: npx next lint --no-cache 2>/dev/null || echo "Lint not configured yet"
+
+      - name: Build (backend)
+        working-directory: backend
+        run: npm run build
+
+      - name: Build (frontend)
+        working-directory: frontend
+        run: npm run build
+
+      - name: Test (backend)
+        working-directory: backend
+        run: npx vitest run
+        env:
+          DATABASE_URL: postgresql://nove:nove@127.0.0.1:5432/nove_test
+          REDIS_URL: redis://127.0.0.1:6379
+          JWT_ACCESS_SECRET: ci-test-access-secret
+          JWT_REFRESH_SECRET: ci-test-refresh-secret
+          NODE_ENV: test
+
+      - name: Test (frontend)
+        working-directory: frontend
+        run: npx vitest run

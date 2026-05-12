@@ -1,0 +1,22 @@
+# Optional stack for Prometheus / Grafana prep: Redis exporter + Prometheus.
+# Point REDIS_ADDR at your Redis (e.g. host.docker.internal:16379 or service name on a shared network).
+services:
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.58.0
+    environment:
+      REDIS_ADDR: ${MONITORING_REDIS_ADDR:-host.docker.internal:16379}
+    ports:
+      - "9121:9121"
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - redis-exporter

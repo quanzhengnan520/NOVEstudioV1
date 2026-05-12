@@ -1,0 +1,234 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+
+
+:root {
+
+  color-scheme: dark;
+
+  --nove-hero-mesh: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(139, 92, 246, 0.22), transparent 50%),
+
+    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(59, 130, 246, 0.18), transparent 45%),
+
+    radial-gradient(ellipse 60% 80% at 50% 90%, rgba(94, 234, 212, 0.12), transparent 55%);
+
+  --nove-card-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+
+}
+
+
+
+body {
+
+  @apply min-h-screen bg-nove-ink text-slate-100 antialiased;
+
+}
+
+
+
+@layer utilities {
+
+  .nove-text-gradient {
+
+    @apply bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent;
+
+  }
+
+  .nove-text-gradient-neon {
+
+    @apply bg-gradient-to-r from-teal-200 via-violet-300 to-blue-300 bg-clip-text text-transparent;
+
+  }
+
+  .nove-mesh-bg {
+
+    background-image: var(--nove-hero-mesh);
+
+  }
+
+  .nove-prompt-surface {
+
+    @apply relative w-full overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-black/30 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset,0_24px_80px_-40px_rgba(94,234,212,0.15)] backdrop-blur-xl transition-shadow duration-300;
+
+  }
+
+  .nove-prompt-surface:focus-within {
+
+    @apply border-teal-400/25 shadow-[0_0_0_1px_rgba(94,234,212,0.2)_inset,0_0_48px_-12px_rgba(94,234,212,0.25)];
+
+  }
+
+  .nove-prompt-surface--stage {
+
+    @apply shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_32px_100px_-48px_rgba(94,234,212,0.35),0_0_80px_-40px_rgba(139,92,246,0.22)];
+
+  }
+
+  .nove-prompt-surface--stage:focus-within {
+
+    @apply border-teal-400/20 shadow-[0_0_0_1px_rgba(94,234,212,0.18)_inset,0_40px_120px_-40px_rgba(94,234,212,0.42),0_0_100px_-36px_rgba(139,92,246,0.28)];
+
+  }
+
+  .nove-prompt-surface--stage::before {
+
+    content: "";
+
+    @apply pointer-events-none absolute inset-0 opacity-[0.45];
+
+    background-image: linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+
+    background-size: 22px 22px;
+
+    mask-image: radial-gradient(ellipse 85% 75% at 50% 35%, black 10%, transparent 72%);
+
+  }
+
+  .nove-eyebrow {
+
+    @apply text-[11px] font-medium uppercase tracking-[0.28em] text-cyan-300/80;
+
+  }
+
+  .nove-hero-title {
+
+    @apply font-semibold leading-[0.92] tracking-[-0.04em] text-white;
+
+    @apply text-4xl sm:text-6xl xl:text-8xl;
+
+  }
+
+  .nove-section-title {
+
+    @apply text-3xl font-semibold tracking-tight text-white md:text-5xl;
+
+  }
+
+  .nove-description {
+
+    @apply leading-relaxed text-zinc-400;
+
+  }
+
+  .nove-chip {
+
+    @apply inline-flex cursor-pointer select-none items-center rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-slate-300 shadow-inner-glow transition duration-300 ease-out hover:border-teal-400/35 hover:bg-white/[0.08] hover:text-white hover:shadow-[0_0_20px_-6px_rgba(94,234,212,0.35)];
+
+  }
+
+  .nove-chip-compact {
+
+    @apply px-3 py-1 text-[11px];
+
+  }
+
+  .nove-chip-active {
+
+    @apply border-teal-400/45 bg-teal-500/15 text-teal-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_0_24px_-8px_rgba(94,234,212,0.45)];
+
+  }
+
+  .nove-chat-assistant-body {
+
+    @apply whitespace-pre-wrap text-[15px] leading-[1.88] tracking-[0.01em] text-zinc-100/95;
+
+  }
+
+  .nove-workspace-fade {
+
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-nove-ink via-nove-ink/40 to-transparent;
+
+  }
+
+}
+
+/* Calm vignette + film grain — pointer-events none, low z so modals stay above */
+
+body::before {
+
+  content: "";
+
+  pointer-events: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 36;
+
+  box-shadow: inset 0 0 min(32vw, 420px) rgba(0, 0, 0, 0.42);
+
+  opacity: 0.5;
+
+}
+
+body::after {
+
+  content: "";
+
+  pointer-events: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 37;
+
+  opacity: 0.024;
+
+  mix-blend-mode: soft-light;
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+}
+
+.nove-chat-assistant-body ul,
+.nove-chat-assistant-body ol {
+
+  margin-top: 0.75rem;
+
+  margin-bottom: 0.75rem;
+
+  padding-left: 1.25rem;
+
+}
+
+.nove-chat-assistant-body ul {
+
+  list-style-type: disc;
+
+}
+
+.nove-chat-assistant-body ol {
+
+  list-style-type: decimal;
+
+}
+
+.nove-chat-assistant-body li {
+
+  margin-top: 0.35rem;
+
+}
+
+.nove-chat-assistant-body code {
+
+  border-radius: 0.375rem;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: rgba(255, 255, 255, 0.04);
+
+  padding: 0.1rem 0.35rem;
+
+  font-size: 0.85em;
+
+  font-family: ui-monospace, monospace;
+
+}
+

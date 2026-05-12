@@ -1,0 +1,24 @@
+{
+  "name": "nove-monorepo",
+  "private": true,
+  "description": "NOVE Studio full-stack monorepo",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n fe,be \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "migrate": "npm run migrate -w backend",
+    "migrate:up": "npm run migrate:up -w backend",
+    "migrate:down": "npm run migrate:down -w backend",
+    "migrate:create": "npm run migrate:create -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}

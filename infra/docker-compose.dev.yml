@@ -1,0 +1,37 @@
+name: nove-studio-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nove
+      POSTGRES_PASSWORD: nove
+      POSTGRES_DB: nove_dev
+    ports:
+      # 避免与主机已有 PostgreSQL（常见占用 5432）冲突；后端请用 localhost:15432
+      - "15432:5432"
+    volumes:
+      - nove_pg_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nove -d nove_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      # 避免与主机已有 Redis（常见占用 6379）冲突；后端请用 REDIS_URL=redis://127.0.0.1:16379
+      - "16379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - nove_redis_dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  nove_pg_dev:
+  nove_redis_dev:
