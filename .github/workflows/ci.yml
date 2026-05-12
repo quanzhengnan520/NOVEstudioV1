@@ -7,32 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: nove
-          POSTGRES_PASSWORD: nove
-          POSTGRES_DB: nove_test
-        options: >-
-          --health-cmd pg_isready -U nove -d nove_test
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-        ports:
-          - 5432:5432
-
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
-        ports:
-          - 6379:6379
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -64,8 +39,6 @@ jobs:
         working-directory: backend
         run: npx vitest run
         env:
-          DATABASE_URL: postgresql://nove:nove@127.0.0.1:5432/nove_test
-          REDIS_URL: redis://127.0.0.1:6379
           JWT_ACCESS_SECRET: ci-test-access-secret
           JWT_REFRESH_SECRET: ci-test-refresh-secret
           NODE_ENV: test
