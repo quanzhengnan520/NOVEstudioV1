@@ -1,5 +1,7 @@
 import type { Queue } from "bullmq";
+import crypto from "node:crypto";
 import { Router } from "express";
+import multer from "multer";
 import { ok } from "../lib/apiResponse.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { HttpError } from "../lib/httpError.js";
@@ -15,6 +17,22 @@ import {
 import { attachStudioRealtimeRoutes } from "./studioRealtime.js";
 import { assertStudioTaskRateLimit } from "../services/studioRateLimit.js";
 import { broadcastStudioWsV1 } from "../ws/studioWs.js";
+import { uploadToR2 } from "../services/objectStorageR2.js";
+
+const uploadImageMem = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+function extFromImageMime(mime: string): string {
+  const m = mime.toLowerCase().split(";")[0]?.trim() ?? "";
+  if (m === "image/jpeg" || m === "image/jpg") return "jpg";
+  if (m === "image/png") return "png";
+  if (m === "image/webp") return "webp";
+  if (m === "image/gif") return "gif";
+  const sub = m.split("/")[1];
+  return sub && /^[a-z0-9]+$/i.test(sub) ? sub.slice(0, 12) : "img";
+}
 
 export function createStudioRouter(studioQueue: Queue<StudioJobData>): Router {
   const studioRouter = Router();
@@ -89,6 +107,36 @@ export function createStudioRouter(studioQueue: Queue<StudioJobData>): Router {
       const offset = Math.max(0, Number(req.query.offset ?? 0));
       const items = await listStudioTasksForUser(req.auth!.sub, { limit, offset });
       res.json(ok(req.requestId, { items }));
+    }),
+  );
+
+  studioRouter.post(
+    "/upload-image",
+    requireAuth,
+    (req, res, next) => {
+      uploadImageMem.single("file")(req, res, (err: unknown) => {
+        if (err) {
+          const code = err && typeof err === "object" && "code" in err ? String((err as { code: string }).code) : "";
+          if (code === "LIMIT_FILE_SIZE") {
+            next(new HttpError(413, "File too large (max 10MB)"));
+            return;
+          }
+          next(err instanceof Error ? new HttpError(400, err.message) : new HttpError(400, "Upload failed"));
+          return;
+        }
+        next();
+      });
+    },
+    asyncHandler(async (req, res) => {
+      const file = req.file;
+      if (!file) throw new HttpError(400, "No file");
+      if (!file.mimetype.toLowerCase().startsWith("image/")) {
+        throw new HttpError(400, "Expected an image file");
+      }
+      const ext = extFromImageMime(file.mimetype);
+      const key = `uploads/${req.auth!.sub}/${crypto.randomUUID()}.${ext}`;
+      const url = await uploadToR2(key, file.buffer, file.mimetype);
+      res.json(ok(req.requestId, { url }));
     }),
   );
 

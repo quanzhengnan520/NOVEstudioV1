@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { createStudioTask, type StudioTaskView } from "@/lib/studio";
 import { NeonButton } from "@/components/nove/NeonButton";
 import { TaskStatusPill } from "@/components/nove/TaskStatusPill";
+import { ImageUploadZone } from "@/components/nove/ImageUploadZone";
 import { AiChipRow } from "@/components/nove/workspace/AiChipRow";
 import { AiPromptSurface } from "@/components/nove/workspace/AiPromptSurface";
 
@@ -193,14 +194,17 @@ export default function VideoPage() {
           </div>
 
           {refMode === "url" ? (
-            <div className="mx-auto max-w-xl space-y-2 transition duration-500 ease-out group-focus-within/promptPage:opacity-[0.28] group-focus-within/promptPage:blur-[0.5px]">
+            <div className="mx-auto max-w-xl space-y-3 transition duration-500 ease-out group-focus-within/promptPage:opacity-[0.28]">
               <p className="text-center text-xs leading-relaxed text-slate-500">{t("video.refUrlHelper")}</p>
-              <input
-                value={imageRef}
-                onChange={(e) => setImageRef(e.target.value)}
-                placeholder={t("video.controlsRefPlaceholder")}
-                className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-sm text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] placeholder:text-slate-600 focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/25"
-              />
+              <ImageUploadZone onUrl={(url) => setImageRef(url)} onError={(msg) => setErr(msg)} />
+              {imageRef ? (
+                <div className="flex items-center gap-2 rounded-xl border border-teal-400/20 bg-teal-500/10 px-3 py-2">
+                  <span className="flex-1 truncate font-mono text-xs text-teal-200">{imageRef}</span>
+                  <button type="button" onClick={() => setImageRef("")} className="text-xs text-slate-500 hover:text-rose-300">
+                    ✕
+                  </button>
+                </div>
+              ) : null}
             </div>
           ) : null}
 

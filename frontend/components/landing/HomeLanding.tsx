@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CreditsBadge } from "@/components/nove/CreditsBadge";
 import { GlassCard } from "@/components/nove/GlassCard";
 import { HeroFloatingStage } from "@/components/landing/HeroFloatingStage";
 import { LanguageSwitcher } from "@/components/nove/LanguageSwitcher";
@@ -9,7 +10,6 @@ import { NeonButton } from "@/components/nove/NeonButton";
 import { SectionHeading } from "@/components/nove/SectionHeading";
 import { UserMenu } from "@/components/nove/UserMenu";
 import { useI18n } from "@/lib/i18n/context";
-import { translate } from "@/lib/i18n/translations";
 
 const nav = [
   { href: "#showcase", key: "landing.navProducts" },
@@ -58,11 +58,26 @@ function ShowcaseArt({
   }
   if (kind === "image") {
     return (
-      <div className="mb-5 grid aspect-[16/10] grid-cols-2 gap-2 overflow-hidden rounded-2xl border border-white/[0.08] bg-black/40 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-        <div className="rounded-xl bg-gradient-to-br from-violet-500/35 to-fuchsia-900/40 transition duration-500 group-hover:from-violet-400/40" />
-        <div className="rounded-xl bg-gradient-to-br from-blue-500/25 to-slate-900/60 transition duration-500 group-hover:from-blue-400/35" />
-        <div className="rounded-xl bg-gradient-to-br from-teal-500/20 to-slate-900/50 transition duration-500 group-hover:from-teal-400/30" />
-        <div className="rounded-xl bg-gradient-to-br from-amber-500/15 to-violet-950/50 transition duration-500 group-hover:from-amber-400/25" />
+      <div className="mb-5 overflow-hidden rounded-2xl border border-white/[0.08]">
+        <div className="grid grid-cols-2 gap-1.5 bg-black/40 p-1.5">
+          {[
+            "from-violet-500/40 to-fuchsia-900/50",
+            "from-blue-500/35 to-slate-900/70",
+            "from-teal-500/30 to-slate-900/60",
+            "from-amber-500/25 to-violet-950/60",
+          ].map((gradient, i) => (
+            <div
+              key={i}
+              className={`relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br ${gradient}`}
+            >
+              <div className="absolute inset-0 flex items-end p-2">
+                <span className="rounded-md bg-black/50 px-1.5 py-0.5 text-[8px] text-white/70 backdrop-blur-sm">
+                  {["Portrait", "Cinematic", "Neon", "Product"][i]}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -83,7 +98,6 @@ function ShowcaseArt({
 
 export function HomeLanding() {
   const { t } = useI18n();
-  const en = (key: string) => translate("en", key);
 
   const chips = [
     t("landing.chipVideo"),
@@ -173,6 +187,9 @@ export function HomeLanding() {
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSwitcher />
+            <div className="hidden opacity-80 sm:block">
+              <CreditsBadge />
+            </div>
             <UserMenu />
           </div>
         </div>
@@ -181,11 +198,11 @@ export function HomeLanding() {
       <main className="relative z-10">
         <section className="mx-auto flex min-h-[92vh] max-w-landing flex-col justify-center gap-12 px-4 pb-20 pt-10 sm:gap-14 sm:px-6 sm:pb-24 sm:pt-12">
           <div className="mx-auto w-full max-w-5xl text-center">
-            <p className="nove-eyebrow">{en("landing.heroEyebrow")}</p>
+            <p className="nove-eyebrow">{t("landing.heroEyebrow")}</p>
             <h1 className="nove-hero-title mx-auto mt-6 max-w-[22ch]">
-              <span className="nove-text-gradient-neon">{en("landing.heroH1a")}</span>
+              <span className="nove-text-gradient-neon">{t("landing.heroH1a")}</span>
               <br />
-              <span className="nove-text-gradient">{en("landing.heroH1b")}</span>
+              <span className="nove-text-gradient">{t("landing.heroH1b")}</span>
             </h1>
             <p className="nove-description mx-auto mt-8 max-w-2xl text-base font-medium sm:text-lg">{t("landing.heroBulletsLine")}</p>
             <p className="nove-description mx-auto mt-4 max-w-2xl text-sm sm:text-base">{t("landing.heroHelp")}</p>
@@ -334,6 +351,12 @@ export function HomeLanding() {
               <Link href="/login" className="hover:text-teal-300">
                 {t("landing.footerLogin")}
               </Link>
+              <a href="#" className="hover:text-teal-300">
+                {t("landing.footerPrivacy")}
+              </a>
+              <a href="#" className="hover:text-teal-300">
+                {t("landing.footerTerms")}
+              </a>
             </div>
           </div>
         </footer>

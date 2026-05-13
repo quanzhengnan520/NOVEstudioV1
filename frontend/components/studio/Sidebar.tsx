@@ -19,7 +19,7 @@ export function Sidebar() {
   const { t } = useI18n();
 
   return (
-    <aside className="group peer fixed left-2 top-[4.5rem] z-30 hidden h-[calc(100dvh-5.25rem)] w-[2.75rem] flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-black/35 py-2.5 shadow-[0_12px_48px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl transition-[width,box-shadow,border-color] duration-300 ease-out hover:w-[13.5rem] hover:border-white/[0.09] hover:shadow-[0_16px_56px_-24px_rgba(0,0,0,0.85)] md:left-2.5 md:top-[4.65rem] md:flex md:flex-col">
+    <aside className="group peer fixed left-2 top-[4.5rem] z-30 hidden h-[calc(100dvh-5.25rem)] w-[2.75rem] flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-black/35 py-2.5 shadow-[0_12px_48px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl transition-[width,box-shadow,border-color] duration-300 ease-out hover:w-[13.5rem] hover:border-white/[0.09] hover:shadow-[0_16px_56px_-24px_rgba(0,0,0,0.85)] md:left-2.5 md:top-[4.65rem] md:flex md:flex-col lg:w-[13.5rem] lg:border-white/[0.09]">
       <div className="flex h-full flex-col gap-0.5 px-1">
         <div className="mb-0.5 px-1 pb-1.5">
           <Link
@@ -35,7 +35,7 @@ export function Sidebar() {
             <IconHome
               className={`h-4 w-4 shrink-0 ${pathname === "/" ? "text-teal-200/95" : "text-slate-500 group-hover/item:text-slate-300"}`}
             />
-            <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100">
+            <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100 lg:max-w-[11rem] lg:opacity-100">
               {t("sidebar.home")}
             </span>
           </Link>
@@ -54,16 +54,21 @@ export function Sidebar() {
                 }`}
               >
                 <l.Icon className={`h-4 w-4 shrink-0 ${active ? "text-teal-200/95" : "text-slate-500 group-hover/item:text-slate-300"}`} />
-                <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100">
+                <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100 lg:max-w-[11rem] lg:opacity-100">
                   {label}
                 </span>
               </Link>
             );
           })}
         </nav>
-        <p className="pointer-events-none mt-auto max-w-0 overflow-hidden px-1.5 pb-0.5 text-[8px] leading-snug text-slate-600 opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100">
-          {t("sidebar.tagline")}
-        </p>
+        <div className="mt-auto">
+          <div className="mb-1 max-w-0 overflow-hidden px-1.5 opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100 lg:max-w-[11rem] lg:opacity-100">
+            <span className="inline-block rounded-full bg-white/[0.04] px-2 py-0.5 text-[9px] text-slate-600">Beta</span>
+          </div>
+          <p className="pointer-events-none max-w-0 overflow-hidden px-1.5 pb-0.5 text-[8px] leading-snug text-slate-600 opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100 lg:max-w-[11rem] lg:opacity-100">
+            {t("sidebar.tagline")}
+          </p>
+        </div>
       </div>
     </aside>
   );

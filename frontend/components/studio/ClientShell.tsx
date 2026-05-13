@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ToastProvider } from "@/components/nove/Toast";
 import { GlobalTopBar } from "./GlobalTopBar";
 import { Sidebar } from "./Sidebar";
 import { StudioBackground } from "./StudioBackground";
@@ -9,15 +10,17 @@ import { useI18n } from "@/lib/i18n/context";
 
 export function ClientShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen flex-col">
-      <StudioBackground />
-      <GlobalTopBar />
-      <div className="relative z-10 flex min-h-0 flex-1">
-        <Sidebar />
-        <div className="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-0 md:pl-[3.35rem] lg:pl-[3.5rem]">{children}</div>
+    <ToastProvider>
+      <div className="relative flex min-h-screen flex-col">
+        <StudioBackground />
+        <GlobalTopBar />
+        <div className="relative z-10 flex min-h-0 flex-1">
+          <Sidebar />
+          <div className="min-h-0 flex-1 overflow-y-auto pb-24 md:pb-0 md:pl-[3.35rem] lg:pl-[15rem]">{children}</div>
+        </div>
+        <MobileDock />
       </div>
-      <MobileDock />
-    </div>
+    </ToastProvider>
   );
 }
 
@@ -34,7 +37,7 @@ function MobileDock() {
   ];
 
   return (
-    <nav className="fixed bottom-3 left-3 right-3 z-40 flex justify-between gap-1 rounded-2xl border border-white/[0.1] bg-black/55 px-1.5 py-1.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex justify-between gap-1 border-t border-white/[0.08] bg-black/80 px-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-4px_24px_-8px_rgba(0,0,0,0.6)] backdrop-blur-2xl md:hidden">
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (

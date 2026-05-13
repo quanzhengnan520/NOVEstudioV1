@@ -50,6 +50,9 @@ export function GlobalTopBar() {
             );
           })}
         </nav>
+        <span className="hidden text-xs text-slate-600 md:block">
+          {pathname.split("/").filter(Boolean).join(" / ")}
+        </span>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <UserMenu />

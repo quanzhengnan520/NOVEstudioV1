@@ -17,8 +17,23 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NOVE Studio",
-  description: "NOVE Studio — AI video, image, and chat workspace. Create cinematic visuals in seconds.",
+  title: {
+    default: "NOVE Studio — AI Video, Image & Chat",
+    template: "%s | NOVE Studio",
+  },
+  description:
+    "Create cinematic AI videos, images, and more with NOVE Studio. Powered by state-of-the-art models — fast, beautiful, creator-focused.",
+  keywords: ["AI video generator", "text to video", "AI image generator", "NOVE Studio", "AI creative tools"],
+  openGraph: {
+    title: "NOVE Studio — AI Video, Image & Chat",
+    description: "Create cinematic AI videos and images in seconds.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NOVE Studio",
+    description: "Create cinematic AI videos and images in seconds.",
+  },
 };
 
 function readInitialLocale(): Locale | null {

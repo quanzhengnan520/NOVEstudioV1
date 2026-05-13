@@ -10,51 +10,72 @@ import { AiPromptSurface } from "@/components/nove/workspace/AiPromptSurface";
 
 type Me = { emailVerified: boolean };
 
+type Message = { role: "user" | "assistant"; content: string; taskId?: string };
+
 export default function ChatPage() {
   const { t } = useI18n();
   const heroTitle = t("chat.r8Title");
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [reply, setReply] = useState("");
-  const [taskId, setTaskId] = useState<string | null>(null);
-  const [lastUser, setLastUser] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [reply, lastUser, busy]);
+  }, [messages, busy]);
 
   async function submit() {
     const text = input.trim();
     if (!text || busy) return;
     setBusy(true);
     setErr(null);
-    setReply("");
-    setTaskId(null);
-    setLastUser(text);
+    setInput("");
+
+    const userMsg: Message = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+
     try {
       const me = await apiFetch<Me>("auth/me", { method: "GET" });
       if (!me.data?.emailVerified) {
+        setMessages((prev) => prev.slice(0, -1));
+        setInput(text);
         setErr(t("chat.verify"));
         setBusy(false);
         return;
       }
-      let acc = "";
-      await streamStudioChat({ message: text, temperature: 0.7 }, (ev) => {
-        if (ev.type === "task" && typeof ev.taskId === "string") setTaskId(ev.taskId);
+    } catch {
+      setMessages((prev) => prev.slice(0, -1));
+      setInput(text);
+      setBusy(false);
+      return;
+    }
+
+    const history = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
+
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    let acc = "";
+    let tId: string | null = null;
+
+    try {
+      await streamStudioChat({ messages: history, temperature: 0.7 }, (ev) => {
+        if (ev.type === "task" && typeof ev.taskId === "string") tId = ev.taskId;
         if (ev.type === "delta" && typeof ev.text === "string") {
           acc += ev.text;
-          setReply(acc);
+          setMessages((prev) => {
+            const next = [...prev];
+            next[next.length - 1] = { role: "assistant", content: acc, taskId: tId ?? undefined };
+            return next;
+          });
         }
         if (ev.type === "error" && typeof ev.message === "string") {
           setErr(mapApiErrorMessage(ev.message));
         }
       });
-      setInput("");
     } catch (e) {
       const raw = e instanceof ApiError ? String(e.body.error ?? e.message) : String(e);
       setErr(mapApiErrorMessage(raw));
+      setMessages((prev) => prev.slice(0, -1));
     } finally {
       setBusy(false);
     }
@@ -73,51 +94,52 @@ export default function ChatPage() {
         </p>
       </div>
 
-      <div ref={scrollRef} className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-6 overflow-y-auto px-4 pb-4">
-        {!lastUser && !reply && !busy ? (
+      <div ref={scrollRef} className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4">
+        {messages.length === 0 && !busy ? (
           <div className="rounded-[1.75rem] border border-dashed border-white/[0.08] bg-white/[0.02] px-6 py-16 text-center shadow-inner-glow">
             <p className="text-base font-medium text-slate-200">{t("chat.emptyTitle")}</p>
             <p className="nove-description mx-auto mt-2 max-w-sm text-sm">{t("chat.emptySub")}</p>
           </div>
         ) : null}
 
-        {lastUser ? (
-          <div className="flex justify-end">
-            <div className="max-w-[92%] rounded-3xl rounded-br-md bg-gradient-to-br from-white/[0.08] to-white/[0.02] px-5 py-4 text-[15px] leading-relaxed text-slate-100 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.6)] backdrop-blur-sm">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-300/70">{t("chat.you")}</p>
-              <p className="mt-2 whitespace-pre-wrap">{lastUser}</p>
-            </div>
-          </div>
-        ) : null}
-
-        {busy && !reply ? (
-          <div className="flex justify-start">
-            <div className="max-w-[92%] rounded-3xl rounded-bl-md border border-teal-400/15 bg-teal-500/[0.06] px-5 py-4 shadow-[0_0_40px_-20px_rgba(94,234,212,0.25)]">
-              <div className="flex items-center gap-2 text-xs text-teal-100/90">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-50" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
-                </span>
-                {t("chat.generating")}
-              </div>
-              <div className="relative mt-4 h-1 overflow-hidden rounded-full bg-white/10">
-                <div className="h-full w-2/5 animate-slow-shimmer rounded-full bg-gradient-to-r from-teal-500/0 via-teal-400/45 to-teal-500/0" />
+        {messages.map((msg, i) =>
+          msg.role === "user" ? (
+            <div key={i} className="flex justify-end">
+              <div className="max-w-[92%] rounded-3xl rounded-br-md bg-gradient-to-br from-white/[0.08] to-white/[0.02] px-5 py-4 text-[15px] leading-relaxed text-slate-100 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.6)] backdrop-blur-sm">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-300/70">{t("chat.you")}</p>
+                <p className="mt-2 whitespace-pre-wrap">{msg.content}</p>
               </div>
             </div>
-          </div>
-        ) : null}
-
-        {reply ? (
-          <div className="flex justify-start">
-            <div className="max-w-[min(100%,48rem)] rounded-3xl rounded-bl-md border border-white/[0.06] bg-gradient-to-br from-violet-500/[0.07] via-nove-graphite/55 to-teal-500/[0.05] px-5 py-5 shadow-inner-glow">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-300/75">{t("chat.assistant")}</p>
-              <div className="nove-chat-assistant-body mt-3 border-l border-teal-400/15 pl-4">{reply}</div>
+          ) : (
+            <div key={i} className="flex justify-start">
+              <div className="max-w-[min(100%,48rem)] rounded-3xl rounded-bl-md border border-white/[0.06] bg-gradient-to-br from-violet-500/[0.07] via-nove-graphite/55 to-teal-500/[0.05] px-5 py-5 shadow-inner-glow">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-300/75">{t("chat.assistant")}</p>
+                {msg.content ? (
+                  <div className="nove-chat-assistant-body mt-3 border-l border-teal-400/15 pl-4 whitespace-pre-wrap">{msg.content}</div>
+                ) : (
+                  <div className="mt-3 flex items-center gap-2 text-xs text-teal-100/90">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-50" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-teal-400" />
+                    </span>
+                    {t("chat.generating")}
+                  </div>
+                )}
+                {msg.taskId ? (
+                  <a
+                    href={`/tasks/chat/${msg.taskId}`}
+                    className="mt-3 inline-block text-[10px] text-teal-300/60 hover:text-teal-200"
+                  >
+                    {t("chat.taskDetail")} →
+                  </a>
+                ) : null}
+              </div>
             </div>
-          </div>
-        ) : null}
+          ),
+        )}
       </div>
 
-      <div className="sticky bottom-0 z-20 mt-auto border-t border-white/[0.08] bg-gradient-to-t from-nove-ink via-nove-ink/95 to-nove-ink/80 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_-16px_rgba(0,0,0,0.65)] backdrop-blur-2xl md:rounded-t-3xl md:border md:border-b-0 md:border-white/[0.07]">
+      <div className="sticky bottom-0 z-20 mt-auto border-t border-white/[0.08] bg-gradient-to-t from-nove-ink via-nove-ink/95 to-nove-ink/80 px-4 py-4 pb-[max(1rem,calc(env(safe-area-inset-bottom)+4.5rem))] shadow-[0_-8px_40px_-16px_rgba(0,0,0,0.65)] backdrop-blur-2xl md:rounded-t-3xl md:border md:border-b-0 md:border-white/[0.07] md:pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-3xl space-y-3">
           {err ? <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{err}</div> : null}
           <AiPromptSurface
@@ -134,14 +156,18 @@ export default function ChatPage() {
             className="min-h-[100px] max-h-[160px] md:min-h-[120px]"
           />
           <div className="flex flex-wrap items-center justify-center gap-3">
+            {messages.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => setMessages([])}
+                className="rounded-full px-3 py-2 text-xs text-slate-500 transition hover:text-rose-300"
+              >
+                {t("chat.clear")}
+              </button>
+            ) : null}
             <NeonButton type="button" loading={busy} disabled={busy} onClick={() => void submit()} variant="primary" size="xl">
               {busy ? t("chat.streaming") : t("chat.send")}
             </NeonButton>
-            {taskId ? (
-              <NeonButton href={`/tasks/chat/${taskId}`} variant="secondary">
-                {t("chat.taskDetail")}
-              </NeonButton>
-            ) : null}
             <NeonButton href="/history" variant="ghost">
               {t("chat.history")}
             </NeonButton>

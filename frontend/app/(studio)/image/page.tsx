@@ -192,7 +192,7 @@ export default function ImagePage() {
               <select
                 value={engine}
                 onChange={(e) => setEngine(e.target.value as typeof engine)}
-                className="mt-2 w-full rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-teal-400/30 focus:outline-none focus:ring-1 focus:ring-teal-400/25"
+                className="nove-native-select mt-2 w-full rounded-2xl border border-white/[0.14] bg-nove-graphite/95 px-4 py-3 text-sm text-slate-100 shadow-inner-glow [color-scheme:dark] focus:border-teal-400/40 focus:outline-none focus:ring-2 focus:ring-teal-400/20"
               >
                 <option value="dashscope">{t("image.engineDashscope")}</option>
                 <option value="openai-compat">{t("image.engineOpenai")}</option>
@@ -258,11 +258,11 @@ export default function ImagePage() {
               {recent.map((x) => {
                 const thumb = urlsFromResult(x.result)[0] ?? null;
                 const title = String((x.payload as { prompt?: string }).prompt ?? "Image");
+                const taskHref = `/tasks/image/${x.id}`;
                 return (
-                  <Link
+                  <div
                     key={x.id}
-                    href={`/tasks/image/${x.id}`}
-                    className="group mb-4 block break-inside-avoid overflow-hidden rounded-2xl border border-white/[0.07] bg-nove-graphite/40 shadow-inner-glow transition duration-300 ease-out hover:-translate-y-[2px] hover:border-teal-400/28 hover:shadow-[0_0_44px_-12px_rgba(94,234,212,0.22)]"
+                    className="group relative mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-white/[0.07] bg-nove-graphite/40 shadow-inner-glow transition duration-300 ease-out hover:-translate-y-[2px] hover:border-teal-400/28 hover:shadow-[0_0_44px_-12px_rgba(94,234,212,0.22)]"
                   >
                     <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-violet-950/50 to-nove-graphite">
                       {thumb ? (
@@ -274,22 +274,41 @@ export default function ImagePage() {
                         </div>
                       )}
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent opacity-95 transition duration-300 group-hover:from-black/90" />
-                      <div className="absolute left-3 top-3 opacity-90 transition duration-300 group-hover:opacity-100">
+                      <Link
+                        href={taskHref}
+                        aria-label={`${t("image.openFrame")}: ${title}`}
+                        className="absolute inset-0 z-[2]"
+                      />
+                      <div className="pointer-events-none absolute left-3 top-3 z-[3] opacity-90 transition duration-300 group-hover:opacity-100">
                         <TaskStatusPill status={x.status} />
                       </div>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300 ease-out group-hover:opacity-100">
-                        <span className="rounded-full border border-white/15 bg-black/50 px-4 py-2 text-xs font-medium text-white shadow-[0_0_28px_-8px_rgba(94,234,212,0.35)] backdrop-blur-md">
+                      <div className="pointer-events-none absolute inset-0 z-[6] flex flex-col items-center justify-center gap-2 opacity-0 transition duration-300 ease-out group-hover:opacity-100">
+                        {thumb ? (
+                          <a
+                            href={thumb}
+                            download
+                            onClick={(e) => e.stopPropagation()}
+                            className="pointer-events-auto rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs font-medium text-white backdrop-blur-md transition hover:bg-white/20"
+                          >
+                            ↓ {t("task.download")}
+                          </a>
+                        ) : null}
+                        <Link
+                          href={taskHref}
+                          onClick={(e) => e.stopPropagation()}
+                          className="pointer-events-auto rounded-full border border-white/15 bg-black/50 px-4 py-2 text-xs font-medium text-white shadow-[0_0_28px_-8px_rgba(94,234,212,0.35)] backdrop-blur-md transition hover:bg-white/10"
+                        >
                           {t("image.openFrame")}
-                        </span>
+                        </Link>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 translate-y-2 p-4 opacity-0 transition duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-[5] translate-y-2 p-4 opacity-0 transition duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                         <p className="line-clamp-2 text-sm font-medium leading-snug text-white">{title}</p>
                         <p className="mt-1 text-[10px] font-medium tabular-nums text-zinc-600">
                           {x.credits_amount} {t("history.creditsUnit")}
                         </p>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>

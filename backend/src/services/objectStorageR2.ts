@@ -1,5 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { env } from "../config/env.js";
+import { HttpError } from "../lib/httpError.js";
 
 let s3: S3Client | null = null;
 
@@ -17,6 +18,24 @@ function getS3(): S3Client | null {
     });
   }
   return s3;
+}
+
+/** Upload a buffer to R2; returns public URL. */
+export async function uploadToR2(objectKey: string, body: Buffer, contentType: string): Promise<string> {
+  const client = getS3();
+  if (!client || !env.r2Bucket || !env.r2PublicUrl) {
+    throw new HttpError(503, "Object storage is not configured");
+  }
+  await client.send(
+    new PutObjectCommand({
+      Bucket: env.r2Bucket,
+      Key: objectKey,
+      Body: body,
+      ContentType: contentType || "application/octet-stream",
+    }),
+  );
+  const base = env.r2PublicUrl.replace(/\/$/, "");
+  return `${base}/${objectKey}`;
 }
 
 function guessContentType(url: string): string {

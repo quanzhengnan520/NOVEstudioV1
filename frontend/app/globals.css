@@ -232,3 +232,13 @@ body::after {
 
 }
 
+/* Dark native <select>: improve dropdown list contrast (Chrome/Edge/Firefox; Safari varies) */
+select.nove-native-select {
+  color-scheme: dark;
+}
+
+select.nove-native-select option {
+  background-color: #12161f;
+  color: #f1f5f9;
+}
+
