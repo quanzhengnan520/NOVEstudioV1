@@ -14,4 +14,4 @@ RUN npm ci -w nove-backend --omit=dev && npm cache clean --force
 COPY --from=build /app/backend/dist ./backend/dist
 COPY backend/migrations ./backend/migrations
 EXPOSE 4000
-CMD ["node", "backend/dist/index.js"]
+CMD cd /app && node node_modules/node-pg-migrate/bin/node-pg-migrate.js up -m backend/migrations && node backend/dist/index.js
