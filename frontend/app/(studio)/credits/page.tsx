@@ -155,11 +155,7 @@ export default function CreditsPage() {
             <NeonButton type="button" onClick={() => void logout()} variant="ghost" className="!text-xs">
               {t("credits.logout")}
             </NeonButton>
-          ) : (
-            <NeonButton href="/login" variant="primary" className="!px-4 !py-2 !text-xs">
-              {t("credits.login")}
-            </NeonButton>
-          )}
+          ) : null}
         </div>
       </div>
 

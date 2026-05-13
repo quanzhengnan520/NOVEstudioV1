@@ -1,21 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthSplitShell } from "@/components/auth/AuthSplitShell";
 import { NeonButton } from "@/components/nove/NeonButton";
 import { ApiError, apiFetch } from "@/lib/api";
 import { mapApiErrorMessage } from "@/lib/errors";
+import { safePostAuthRedirect } from "@/lib/safePostAuthRedirect";
 import { useI18n } from "@/lib/i18n/context";
 
 export default function LoginPage() {
   const { t } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const nextRaw = searchParams.get("next");
+  const registerHref =
+    nextRaw != null ? `/register?next=${encodeURIComponent(safePostAuthRedirect(nextRaw))}` : "/register";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +32,8 @@ export default function LoginPage() {
         "auth/login",
         { method: "POST", body: JSON.stringify({ email, password }) },
       );
-      router.push("/credits");
+      const dest = safePostAuthRedirect(searchParams.get("next"));
+      router.push(dest);
       router.refresh();
     } catch (err) {
       const raw = err instanceof ApiError ? String(err.body.error ?? err.message) : String(err);
@@ -41,7 +48,7 @@ export default function LoginPage() {
       footer={
         <span>
           {t("auth.noAccount")}{" "}
-          <Link href="/register" className="text-teal-300/90 hover:text-teal-200">
+          <Link href={registerHref} className="text-teal-300/90 hover:text-teal-200">
             {t("auth.registerLink")}
           </Link>
           {" · "}

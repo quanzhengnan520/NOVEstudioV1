@@ -7,7 +7,6 @@ import { LanguageSwitcher } from "@/components/nove/LanguageSwitcher";
 import { ModelChipBar } from "@/components/nove/ModelChipBar";
 import { NeonButton } from "@/components/nove/NeonButton";
 import { SectionHeading } from "@/components/nove/SectionHeading";
-import { CreditsBadge } from "@/components/nove/CreditsBadge";
 import { UserMenu } from "@/components/nove/UserMenu";
 import { useI18n } from "@/lib/i18n/context";
 import { translate } from "@/lib/i18n/translations";
@@ -16,6 +15,7 @@ const nav = [
   { href: "#showcase", key: "landing.navProducts" },
   { href: "#workflow", key: "landing.navWorkflow" },
   { href: "#pricing", key: "landing.navPricing" },
+  { href: "/feedback", key: "landing.navFeedback" },
   { href: "#faq", key: "landing.navFaq" },
 ] as const;
 
@@ -158,23 +158,22 @@ export function HomeLanding() {
               NOVE <span className="text-slate-400">Studio</span>
             </span>
           </Link>
-          <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
-            {nav.map((n) => (
-              <a key={n.href} href={n.href} className="transition hover:text-white">
-                {t(n.key)}
-              </a>
-            ))}
+          <nav className="hidden items-center gap-6 text-sm text-slate-400 md:flex lg:gap-8">
+            {nav.map((n) =>
+              n.href.startsWith("/") ? (
+                <Link key={n.href} href={n.href} className="transition hover:text-white">
+                  {t(n.key)}
+                </Link>
+              ) : (
+                <a key={n.href} href={n.href} className="transition hover:text-white">
+                  {t(n.key)}
+                </a>
+              ),
+            )}
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageSwitcher />
-            <div className="hidden opacity-80 sm:block">
-              <CreditsBadge />
-            </div>
             <UserMenu />
-            <NeonButton href="/video" variant="primary" className="hidden flex-col items-center px-4 py-2 sm:inline-flex sm:px-5">
-              <span className="text-sm font-semibold">{t("landing.cta1Main")}</span>
-              <span className="mt-0.5 text-[10px] font-normal text-teal-950/80">{t("landing.cta1Sub")}</span>
-            </NeonButton>
           </div>
         </div>
       </header>
@@ -191,13 +190,11 @@ export function HomeLanding() {
             <p className="nove-description mx-auto mt-8 max-w-2xl text-base font-medium sm:text-lg">{t("landing.heroBulletsLine")}</p>
             <p className="nove-description mx-auto mt-4 max-w-2xl text-sm sm:text-base">{t("landing.heroHelp")}</p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <NeonButton href="/video" variant="primary" className="flex min-w-[10rem] flex-col items-center px-8 py-3">
-                <span className="text-base font-semibold">{t("landing.cta1Main")}</span>
-                <span className="mt-1 text-[11px] font-normal opacity-90">{t("landing.cta1Sub")}</span>
+              <NeonButton href="/video" variant="primary" className="min-w-[10rem] px-8 py-3 text-base">
+                {t("landing.cta1Main")}
               </NeonButton>
-              <NeonButton href="/history" variant="secondary" className="flex min-w-[10rem] flex-col items-center px-8 py-3">
-                <span className="text-base font-semibold">{t("landing.cta2Main")}</span>
-                <span className="mt-1 text-[11px] font-normal opacity-90">{t("landing.cta2Sub")}</span>
+              <NeonButton href="/history" variant="secondary" className="min-w-[10rem] px-8 py-3 text-base">
+                {t("landing.cta2Main")}
               </NeonButton>
             </div>
             <div className="mt-12">

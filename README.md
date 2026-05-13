@@ -128,6 +128,24 @@ cd backend && npm run migrate:up
 npm test
 ```
 
+## 端到端（Playwright）
+
+覆盖从**打开首页 → 注册 → Credits → 各工作室页 → 提交视频任务 → 历史 → 反馈 → 管理端 → Mock 充值（若开启）→ 退出 → 再登录**的完整链路。
+
+**前置**：PostgreSQL、Redis 已启动，并已执行 `npm run migrate:up`；`backend/.env` 中 `DATABASE_URL`、`REDIS_URL` 正确。
+
+**推荐**（由 Playwright 启动 `npm run dev`，并自动注入 `BOOTSTRAP_ADMIN_EMAIL=e2e-bootstrap@test.nove` 与空的 `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`，避免注册页等待 reCAPTCHA）：
+
+```bash
+npm install
+npm run test:e2e:install
+npm run test:e2e
+```
+
+若你已在本地运行 `npm run dev`，可设置环境变量 `PLAYWRIGHT_SKIP_WEBSERVER=1` 后只执行 `npm run test:e2e`，并确保**当前后端进程**的环境变量包含 `BOOTSTRAP_ADMIN_EMAIL=e2e-bootstrap@test.nove`（与测试固定邮箱一致），否则视频生成会因未验证邮箱失败。
+
+HTML 报告输出在 `playwright-report/`。
+
 ## 品牌与命名
 
 - 对外统一品牌：**NOVE Studio**

@@ -35,7 +35,12 @@ Thumbs.db
 
 # Test
 coverage/
+playwright-report/
+test-results/
 
 # Misc
 *.pem
 .turbo
+
+# Local scratch at repo root (never commit secrets)
+/env*.txt

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
 import { ApiError, apiFetch } from "@/lib/api";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -26,15 +25,12 @@ export function UserMenu() {
 
   if (!me) {
     return (
-      <div className="flex items-center gap-2">
-        <Link
-          href="/login"
-          className="rounded-full px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white"
-        >
-          {t("user.login")}
-        </Link>
-        <NeonLink href="/register">{t("user.start")}</NeonLink>
-      </div>
+      <Link
+        href="/login"
+        className="rounded-full px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white"
+      >
+        {t("user.login")}
+      </Link>
     );
   }
 
@@ -79,16 +75,5 @@ export function UserMenu() {
         </>
       ) : null}
     </div>
-  );
-}
-
-function NeonLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-full bg-gradient-to-r from-teal-400 to-cyan-300 px-4 py-1.5 text-xs font-semibold text-nove-ink transition hover:opacity-90"
-    >
-      {children}
-    </Link>
   );
 }

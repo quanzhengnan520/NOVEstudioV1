@@ -66,6 +66,15 @@ type TaskRow = {
   updated_at: string;
 };
 
+type FeedbackRow = {
+  id: string;
+  user_id: string | null;
+  email: string | null;
+  message: string;
+  context: Record<string, unknown>;
+  created_at: string;
+};
+
 export default function AdminHomePage() {
   return (
     <Suspense fallback={<main className="mx-auto max-w-6xl px-6 py-12 text-slate-300">加载管理后台…</main>}>
@@ -75,7 +84,7 @@ export default function AdminHomePage() {
 }
 
 function AdminHomePageInner() {
-  const [tab, setTab] = useState<"users" | "orders" | "tasks" | "providers">("users");
+  const [tab, setTab] = useState<"users" | "orders" | "tasks" | "providers" | "feedback">("users");
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -86,6 +95,7 @@ function AdminHomePageInner() {
   const [providers, setProviders] = useState<ProviderOpsRow[]>([]);
   const [queueCounts, setQueueCounts] = useState<Record<string, number> | null>(null);
   const [studioProcByType, setStudioProcByType] = useState<Record<string, number>>({});
+  const [feedbackRows, setFeedbackRows] = useState<FeedbackRow[]>([]);
   const [adjustUserId, setAdjustUserId] = useState("");
   const [adjustDelta, setAdjustDelta] = useState("10");
   const [adjustReason, setAdjustReason] = useState("manual_adjust");
@@ -97,6 +107,7 @@ function AdminHomePageInner() {
 
   useEffect(() => {
     if (tabParam === "providers") setTab("providers");
+    if (tabParam === "feedback") setTab("feedback");
   }, [tabParam]);
 
   async function loadUsers() {
@@ -136,6 +147,11 @@ function AdminHomePageInner() {
     setStudioProcByType(res.data?.studioProcessingByType ?? {});
   }
 
+  async function loadFeedback() {
+    const res = await apiFetch<{ items: FeedbackRow[] }>("admin/feedback?limit=100", { method: "GET" });
+    setFeedbackRows(res.data?.items ?? []);
+  }
+
   useEffect(() => {
     void (async () => {
       setError(null);
@@ -147,6 +163,7 @@ function AdminHomePageInner() {
         }
         if (tab === "tasks") await loadTasks();
         if (tab === "providers") await loadProviders();
+        if (tab === "feedback") await loadFeedback();
       } catch (e) {
         if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
           setError("需要管理员权限或未登录。");
@@ -185,7 +202,7 @@ function AdminHomePageInner() {
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {(["users", "orders", "tasks", "providers"] as const).map((t) => (
+        {(["users", "orders", "tasks", "providers", "feedback"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -200,7 +217,9 @@ function AdminHomePageInner() {
                 ? "订单 / 流水"
                 : t === "tasks"
                   ? "任务监控"
-                  : "服务商 / 队列"}
+                  : t === "providers"
+                    ? "服务商 / 队列"
+                    : "用户留言"}
           </button>
         ))}
       </div>
@@ -436,6 +455,49 @@ function AdminHomePageInner() {
               </tbody>
             </table>
           </div>
+        </section>
+      ) : null}
+
+      {tab === "feedback" ? (
+        <section className="mt-8 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-white">用户留言</h2>
+            <button
+              type="button"
+              onClick={() => void loadFeedback()}
+              className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white"
+            >
+              刷新
+            </button>
+          </div>
+          <p className="text-sm text-slate-400">来自首页 / 工作室「反馈」入口，按时间倒序。</p>
+          <div className="overflow-x-auto rounded-xl border border-white/10">
+            <table className="min-w-full divide-y divide-white/10 text-sm">
+              <thead className="bg-black/30 text-left text-slate-300">
+                <tr>
+                  <th className="px-3 py-2">时间</th>
+                  <th className="px-3 py-2">用户</th>
+                  <th className="px-3 py-2">留言</th>
+                  <th className="px-3 py-2">ID</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 text-slate-200">
+                {feedbackRows.map((f) => (
+                  <tr key={f.id} className="align-top">
+                    <td className="whitespace-nowrap px-3 py-2 text-xs text-slate-400">
+                      {new Date(f.created_at).toLocaleString()}
+                    </td>
+                    <td className="max-w-[10rem] px-3 py-2 text-xs">{f.email ?? f.user_id ?? "—"}</td>
+                    <td className="max-w-xl px-3 py-2 text-xs leading-relaxed text-slate-200">
+                      <span className="whitespace-pre-wrap break-words">{f.message}</span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 font-mono text-[10px] text-slate-500">{f.id}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {feedbackRows.length === 0 ? <p className="text-sm text-slate-500">暂无留言。</p> : null}
         </section>
       ) : null}
     </main>

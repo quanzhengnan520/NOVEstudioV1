@@ -35,8 +35,10 @@ export default function RootLayout({
   const htmlLangAttr = htmlLang(initialLocale ?? "zh");
 
   return (
-    <html lang={htmlLangAttr} suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+    <html lang={htmlLangAttr} suppressHydrationWarning className="min-h-dvh bg-nove-ink">
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} min-h-dvh bg-nove-ink font-sans text-slate-100 antialiased`}
+      >
         <I18nProvider initialLocale={initialLocale}>{children}</I18nProvider>
       </body>
     </html>

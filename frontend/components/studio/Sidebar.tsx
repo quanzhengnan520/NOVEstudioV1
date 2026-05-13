@@ -24,10 +24,20 @@ export function Sidebar() {
         <div className="mb-0.5 px-1 pb-1.5">
           <Link
             href="/"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[9px] font-bold uppercase tracking-widest text-slate-500 transition hover:bg-white/[0.05] hover:text-teal-200/90"
-            title={t("sidebar.workspace")}
+            title={t("sidebar.home")}
+            aria-label={t("sidebar.home")}
+            className={`group/item relative flex h-9 items-center gap-2.5 overflow-hidden rounded-lg px-2 transition ${
+              pathname === "/"
+                ? "bg-white/[0.09] text-white shadow-inner-glow"
+                : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-200"
+            }`}
           >
-            N
+            <IconHome
+              className={`h-4 w-4 shrink-0 ${pathname === "/" ? "text-teal-200/95" : "text-slate-500 group-hover/item:text-slate-300"}`}
+            />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap text-[11px] font-medium opacity-0 transition-all duration-300 group-hover:max-w-[11rem] group-hover:opacity-100">
+              {t("sidebar.home")}
+            </span>
           </Link>
         </div>
         <nav className="flex flex-1 flex-col gap-0.5">
@@ -56,6 +66,14 @@ export function Sidebar() {
         </p>
       </div>
     </aside>
+  );
+}
+
+function IconHome({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5z" strokeLinejoin="round" />
+    </svg>
   );
 }
 

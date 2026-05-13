@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CreditsBadge } from "@/components/nove/CreditsBadge";
 import { LanguageSwitcher } from "@/components/nove/LanguageSwitcher";
 import { UserMenu } from "@/components/nove/UserMenu";
 import { useI18n } from "@/lib/i18n/context";
@@ -53,7 +52,6 @@ export function GlobalTopBar() {
         </nav>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
-          <CreditsBadge />
           <UserMenu />
         </div>
       </header>

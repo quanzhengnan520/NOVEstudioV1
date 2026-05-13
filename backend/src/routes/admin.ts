@@ -155,6 +155,26 @@ adminRouter.get(
 );
 
 adminRouter.get(
+  "/feedback",
+  asyncHandler(async (req, res) => {
+    const pool = getPool();
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit ?? 80)));
+    const offset = Math.max(0, Number(req.query.offset ?? 0));
+    const rows = await pool.query(
+      `
+      select f.id, f.user_id, u.email, f.message, f.context, f.created_at
+      from nove_feedback f
+      left join users u on u.id = f.user_id
+      order by f.created_at desc
+      limit $1 offset $2
+      `,
+      [limit, offset],
+    );
+    res.json(ok(req.requestId, { items: rows.rows }));
+  }),
+);
+
+adminRouter.get(
   "/credit-logs",
   asyncHandler(async (req, res) => {
     const pool = getPool();

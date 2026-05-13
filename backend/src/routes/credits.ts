@@ -114,7 +114,7 @@ creditsRouter.post(
       await client.query("commit");
       res.json(ok(req.requestId, { orderId: spent.orderId, balanceAfter: spent.balanceAfter, charged: amount }));
     } catch (e) {
-      await client.query("rollback");
+      await client.query("rollback").catch(() => {});
       throw e;
     } finally {
       client.release();

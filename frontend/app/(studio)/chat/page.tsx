@@ -117,7 +117,7 @@ export default function ChatPage() {
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 z-30 mt-auto border-t border-white/[0.08] bg-gradient-to-t from-nove-ink via-nove-ink/95 to-nove-ink/80 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_-16px_rgba(0,0,0,0.65)] backdrop-blur-2xl md:rounded-t-3xl md:border md:border-b-0 md:border-white/[0.07]">
+      <div className="sticky bottom-0 z-20 mt-auto border-t border-white/[0.08] bg-gradient-to-t from-nove-ink via-nove-ink/95 to-nove-ink/80 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_40px_-16px_rgba(0,0,0,0.65)] backdrop-blur-2xl md:rounded-t-3xl md:border md:border-b-0 md:border-white/[0.07]">
         <div className="mx-auto w-full max-w-3xl space-y-3">
           {err ? <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">{err}</div> : null}
           <AiPromptSurface

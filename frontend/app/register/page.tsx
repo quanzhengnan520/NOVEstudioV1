@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useState } from "react";
 import { AuthSplitShell } from "@/components/auth/AuthSplitShell";
 import { NeonButton } from "@/components/nove/NeonButton";
 import { ApiError, apiFetch } from "@/lib/api";
 import { mapApiErrorMessage } from "@/lib/errors";
+import { safePostAuthRedirect } from "@/lib/safePostAuthRedirect";
 import { useI18n } from "@/lib/i18n/context";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
@@ -15,6 +16,7 @@ const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
 export default function RegisterPage() {
   const { t } = useI18n();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +24,11 @@ export default function RegisterPage() {
   const [done, setDone] = useState(false);
   const [emailSent, setEmailSent] = useState(true);
   const [scriptReady, setScriptReady] = useState(!SITE_KEY);
+
+  const loginHref = (() => {
+    const n = searchParams.get("next");
+    return n != null ? `/login?next=${encodeURIComponent(safePostAuthRedirect(n))}` : "/login";
+  })();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,7 +61,7 @@ export default function RegisterPage() {
     return (
       <AuthSplitShell
         footer={
-          <Link href="/login" className="text-teal-300/90 hover:text-teal-200">
+          <Link href={loginHref} className="text-teal-300/90 hover:text-teal-200">
             {t("auth.loginLink")}
           </Link>
         }
@@ -86,7 +93,7 @@ export default function RegisterPage() {
       footer={
         <span>
           {t("auth.hasAccount")}{" "}
-          <Link href="/login" className="text-teal-300/90 hover:text-teal-200">
+          <Link href={loginHref} className="text-teal-300/90 hover:text-teal-200">
             {t("auth.loginLink")}
           </Link>
         </span>
